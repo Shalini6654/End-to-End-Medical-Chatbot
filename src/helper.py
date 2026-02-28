@@ -1,14 +1,48 @@
 from langchain.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchai.schema import Document
+from langchain.schema import Document
 from typing import List
 
 # 1. Extract Data from the PDF file
 def load_pdf_file(data):
-    loader = DirectoryLoader(data_path, glob="*.pdf", loader_cls=PyPDFLoader)
+    loader = DirectoryLoader(data, glob="*.pdf", loader_cls=PyPDFLoader)
     documents = loader.load()
     return documents
+
+def filter_to_minimal_docs(docs: List[Document]) -> List[Document]:
+    """
+    Given a list of Document objects, return a new list of Document objects containing only 'source' in metadata and the original page_content.
+    """
+    minimal_docs: List[Document] = []
+    for doc in docs:
+        src = doc.metadata.get("source")
+        minimal_docs.append(
+            Document(
+                page_content=doc.page_content,
+                metadata={"source": src}
+            )
+        )
+    return minimal_docs
+
+# Split the documents into smaller chunks
+def text_split(minimal_docs):
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=20,
+    )
+    texts_chunk = text_splitter.split_documents(minimal_docs)
+    return texts_chunk
+
+def download_embeddings():
+    """
+    Download and return the HuggingFace embeddings model.
+    """
+    model_name = "sentence-transformers/all-MiniLM-L6-v2"
+    embeddings = HuggingFaceEmbeddings(
+        model_name=model_name
+    )
+    return embeddings
 
 # 2. Split documents into chunks
 def split_text(documents):
@@ -28,29 +62,3 @@ def get_embeddings():
         model_kwargs={'device': 'cpu'}
     )
     return embeddings
-
-# 4. Initialize Pinecone vector store
-def get_vector_store():
-    embeddings = get_embeddings()
-    vectorstore = PineconeVectorStore.from_existing_index(
-        index_name="medical-chatbot",
-        embedding=embeddings
-    )
-    return vectorstore
-
-# 5. Initialize Groq LLM
-def get_llm():
-    llm = ChatGroq(
-        api_key=GROQ_API_KEY,
-        model_name="llama-3.1-8b-instant",
-        temperature=0.7
-    )
-    return llm
-
-# 6. Create RAG chain
-def get_rag_chain():
-    vectorstore = get_vector_store()
-    llm = get_llm()
-    
-    rag_chain = (vectorstore | llm)
-    return rag_chain
