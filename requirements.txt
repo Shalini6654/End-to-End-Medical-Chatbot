@@ -11,4 +11,5 @@ langchain-groq
 langchain-pinecone==0.2.0
 langchain-community==0.3.26
 sentence-transformers
+streamlit
 -e .
