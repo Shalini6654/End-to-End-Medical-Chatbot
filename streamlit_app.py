@@ -38,8 +38,8 @@ st.divider()
 # Initialize LangChain components (Cached to avoid re-running every interaction)
 @st.cache_resource
 def init_rag_chain():
-    PINECONE_API_KEY = st.secrets("PINECONE_API_KEY")
-    GROQ_API_KEY = st.secrets("GROQ_API_KEY")
+    PINECONE_API_KEY = st.secrets["PINECONE_API_KEY"]
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
     
     embeddings = download_embeddings()
     index_name = "medical-chatbot"
