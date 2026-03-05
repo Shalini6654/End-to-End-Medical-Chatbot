@@ -38,8 +38,8 @@ st.divider()
 # Initialize LangChain components (Cached to avoid re-running every interaction)
 @st.cache_resource
 def init_rag_chain():
-    PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
-    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+    PINECONE_API_KEY = st.secrets("PINECONE_API_KEY")
+    GROQ_API_KEY = st.secrets("GROQ_API_KEY")
     
     embeddings = download_embeddings()
     index_name = "medical-chatbot"
@@ -49,7 +49,7 @@ def init_rag_chain():
         index_name=index_name
     )
     
-    retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+    retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 6})
     
     chatmodel = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="llama-3.1-8b-instant")
     prompt = ChatPromptTemplate.from_messages(
