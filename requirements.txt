@@ -8,7 +8,7 @@ groq
 pinecone
 langchain-core==0.3.83
 langchain-groq
-langchain-pinecone==0.2.0
+langchain-pinecone==0.2.13
 langchain-community==0.3.26
 sentence-transformers
 streamlit
